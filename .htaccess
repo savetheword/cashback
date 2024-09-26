@@ -1,0 +1,55 @@
+php_value display_errors 1
+php_flag output_buffering on
+
+# Error handling for 404
+# Enable rewriting engine
+RewriteEngine On
+
+# Redirect product URLs from clean URL to PHP file with query parameters
+RewriteRule ^product/(\d+)$ single-page.php?product-id=$1 [L]
+
+# Redirect /home to cashbring.php if not a directory or file
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^home$ cashbring.php [NC,L]
+
+# Redirect /cashbring to index.php if not a directory or file
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^cashbring$ index.php [NC,L]
+
+# If the requested filename is not a directory and does not already have a .php extension
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteCond %{REQUEST_URI} !\.php$
+# Rewrite the URL by appending .php to the requested filename
+RewriteRule ^(.*)$ $1.php [L]
+
+# Redirect requests for index.php to 404
+RewriteCond %{REQUEST_URI} ^/index\.php [NC]
+RewriteRule ^ - [R=404,L]
+
+RewriteCond %{REQUEST_URI} ^(.+)\.php/(.*)
+RewriteRule ^ %1.php [L,R=301]
+
+# Redirect requests for index to 404
+RewriteCond %{REQUEST_URI} ^/index [NC]
+RewriteRule ^ - [R=404,L]
+
+RewriteCond %{THE_REQUEST} \s/single-page\.php [NC]
+RewriteRule ^single-page\.php$ /404.php [L]
+
+RewriteCond %{REQUEST_URI} ^\.php [NC]
+RewriteRule ^ /404.php [L,R=404]
+
+# Deny access to .htaccess and connection.php files
+<Files ".htaccess">
+    Require all denied
+</Files>
+
+<Files "connection.php">
+    Require all denied
+</Files>
+
+# Custom error document for 404 errors
+ErrorDocument 404 /404.php
